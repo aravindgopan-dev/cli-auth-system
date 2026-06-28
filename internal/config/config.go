@@ -1,36 +1,35 @@
 package config
 
-
 import (
-	"time"
 	"os"
+	"time"
 )
 
 type Config struct {
-	DatabaseURL string
-	SessionDureation time.Duration
-	LockoutDureation time.Duration
-
-
+	DatabaseURL     string
+	SessionDuration time.Duration
+	LockoutDuration time.Duration
 }
 
-func Load()*Config{
+func Load() *Config {
 	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL == ""{
-		dbURL="postgres://postgres:secret@localhost:5432/auth_db?sslmode=disable"
+	if dbURL == "" {
+		dbURL = "postgres://postgres:postgres@localhost:5432/auth_db?sslmode=disable"
 	}
+
 	sessDur := 5 * time.Minute
-	if val,err :=time.ParseDuration(os.Getenv("SESSION_DURATION"));err!=nil{
-		sessDur=val
+	if val, err := time.ParseDuration(os.Getenv("SESSION_DURATION")); err == nil {
+		sessDur = val
 	}
+
 	lockDur := 1 * time.Minute
 	if val, err := time.ParseDuration(os.Getenv("LOCKOUT_DURATION")); err == nil {
 		lockDur = val
 	}
-	return  &Config{
-		dbURL,
-		sessDur,
-		lockDur,
-	}
 
+	return &Config{
+		DatabaseURL:     dbURL,
+		SessionDuration: sessDur,
+		LockoutDuration: lockDur,
+	}
 }

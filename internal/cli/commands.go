@@ -8,6 +8,7 @@ import (
 
 	"github.com/aravindgopan-dev/cli-auth-system/internal/repository"
 	prompt "github.com/c-bata/go-prompt"
+	"github.com/mdp/qrterminal/v3"
 )
 
 func (h *CLIHandler) Register(ctx context.Context, args []string) error {
@@ -68,6 +69,15 @@ func (h *CLIHandler) Enable2FA(ctx context.Context, args []string) error {
 	}
 	secret, url, _ := h.AuthService.Generate2FASecret(h.CurrentUser.Username)
 	fmt.Printf("Secret seed string: %s\nURI target parameters: %s\n", secret, url)
+	
+	fmt.Println("\nScan this QR code with your authenticator app:")
+	config := qrterminal.Config{
+		Level:      qrterminal.L,
+		Writer:     os.Stdout,
+		HalfBlocks: true,
+	}
+	qrterminal.GenerateWithConfig(url, config)
+	fmt.Println()
 	
 	code := prompt.Input("Verify app TOTP token number sequence: ", func(d prompt.Document) []prompt.Suggest { return nil })
 	code = strings.TrimSpace(code)
