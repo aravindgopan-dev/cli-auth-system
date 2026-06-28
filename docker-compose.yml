@@ -11,6 +11,24 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  migration:
+    image: migrate/migrate
+    container_name: cli-auth-migration
+    volumes:
+      - ./migration:/migrations
+    command:
+      - -path=/migrations
+      - -database=postgres://postgres:postgres@postgres:5432/auth_db?sslmode=disable
+      - up
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   app:
     build:
@@ -24,7 +42,10 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:

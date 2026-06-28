@@ -40,6 +40,18 @@ func NewAuthService(repo DataStore, sessDur, lockDur time.Duration) *AuthService
 }
 
 func (s *AuthService) Register(ctx context.Context, username, password string) error {
+	if len(username) < 3 || len(username) > 30 {
+		return errors.New("username must be between 3 and 30 characters")
+	}
+	for _, r := range username {
+		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_') {
+			return errors.New("username can only contain alphanumeric characters and underscores")
+		}
+	}
+	if len(password) < 6 {
+		return errors.New("password must be at least 6 characters")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err

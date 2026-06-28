@@ -11,6 +11,13 @@ import (
 	prompt "github.com/c-bata/go-prompt"
 )
 
+const (
+	colorReset = "\033[0m"
+	colorCyan  = "\033[1;36m"
+	colorRed   = "\033[1;31m"
+	colorGreen = "\033[1;32m"
+)
+
 type Authenticator interface {
 	Register(ctx context.Context, username, password string) error
 	PreLoginValidate(ctx context.Context, username string) (*repository.User, error)
@@ -39,7 +46,14 @@ func NewCLIHandler(authService Authenticator, userRepo SessionStore) *CLIHandler
 }
 
 func (h *CLIHandler) Run() {
-	fmt.Println("=== Welcome to Secure Containerized CLI ===")
+	banner := `
+███████  ███████  ██████  ██    ██ ██████  ███████      ██████  ██      ██
+██       ██      ██       ██    ██ ██   ██ ██          ██       ██      ██
+███████  █████   ██       ██    ██ ██████  █████       ██       ██      ██
+     ██  ██      ██       ██    ██ ██   ██ ██          ██       ██      ██
+███████  ███████  ██████   ██████  ██   ██ ███████      ██████  ███████ ██
+`
+	fmt.Printf("%s%s%s\n", colorCyan, banner, colorReset)
 	h.printHelpMenu()
 
 	p := prompt.New(
@@ -47,6 +61,16 @@ func (h *CLIHandler) Run() {
 		h.CompleteCommand,
 		prompt.OptionLivePrefix(h.ChangeLivePromptPrefix),
 		prompt.OptionTitle("Secure-CLI Console"),
+		prompt.OptionPrefixTextColor(prompt.Cyan),
+		prompt.OptionInputTextColor(prompt.White),
+		prompt.OptionSuggestionBGColor(prompt.DarkGray),
+		prompt.OptionSuggestionTextColor(prompt.White),
+		prompt.OptionSelectedSuggestionBGColor(prompt.Cyan),
+		prompt.OptionSelectedSuggestionTextColor(prompt.Black),
+		prompt.OptionDescriptionBGColor(prompt.LightGray),
+		prompt.OptionDescriptionTextColor(prompt.Black),
+		prompt.OptionSelectedDescriptionBGColor(prompt.Turquoise),
+		prompt.OptionSelectedDescriptionTextColor(prompt.Black),
 	)
 	p.Run()
 }
@@ -135,6 +159,6 @@ func (h *CLIHandler) ExecuteCommand(input string) {
 	}
 
 	if err := targetFunc(ctx, args); err != nil {
-		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("%sError:%s %v\n", colorRed, colorReset, err)
 	}
 }

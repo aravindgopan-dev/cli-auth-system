@@ -13,6 +13,5 @@ FROM alpine:3.19
 WORKDIR /app
 
 COPY --from=builder /app/auth-cli /app/auth-cli
-COPY --from=builder /app/migration /app/migration
 
 ENTRYPOINT ["/app/auth-cli"]

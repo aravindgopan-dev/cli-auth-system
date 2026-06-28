@@ -16,7 +16,7 @@ func (h *CLIHandler) Register(ctx context.Context, args []string) error {
 	if err := h.AuthService.Register(ctx, username, password); err != nil {
 		return err
 	}
-	fmt.Println("Registration successful!")
+	fmt.Printf("%sRegistration successful!%s\n", colorGreen, colorReset)
 	return nil
 }
 
@@ -46,7 +46,7 @@ func (h *CLIHandler) Login(ctx context.Context, args []string) error {
 
 	h.CurrentToken = token
 	h.CurrentUser = user
-	fmt.Println("\nLogin Successful!")
+	fmt.Printf("%sLogin successful!%s\n", colorGreen, colorReset)
 	h.displayWhoAmI(ctx)
 	return nil
 }
@@ -87,9 +87,9 @@ func (h *CLIHandler) Enable2FA(ctx context.Context, args []string) error {
 	if h.AuthService.VerifyTOTP(&repository.User{TwoFASecret: secret}, code) {
 		_ = h.AuthService.Enable2FA(ctx, h.CurrentUser, secret)
 		h.CurrentUser.TwoFAEnabled = true
-		fmt.Println("2FA enabled successfully!")
+		fmt.Printf("%s2FA enabled successfully!%s\n", colorGreen, colorReset)
 	} else {
-		fmt.Println("Invalid verification code. Canceled configuration steps.")
+		fmt.Printf("%sInvalid verification code. Canceled configuration steps.%s\n", colorRed, colorReset)
 	}
 	return nil
 }
@@ -97,13 +97,13 @@ func (h *CLIHandler) Enable2FA(ctx context.Context, args []string) error {
 func (h *CLIHandler) Disable2FA(ctx context.Context, args []string) error {
 	_ = h.AuthService.Disable2FA(ctx, h.CurrentUser)
 	h.CurrentUser.TwoFAEnabled = false
-	fmt.Println("2FA configuration deactivated.")
+	fmt.Printf("%s2FA configuration deactivated.%s\n", colorGreen, colorReset)
 	return nil
 }
 
 func (h *CLIHandler) Logout(ctx context.Context, args []string) error {
 	h.performLogout(ctx)
-	fmt.Println("Logged out successfully.")
+	fmt.Printf("%sLogged out successfully.%s\n", colorGreen, colorReset)
 	return nil
 }
 
@@ -126,28 +126,30 @@ func (h *CLIHandler) performLogout(ctx context.Context) {
 
 func (h *CLIHandler) printHelpMenu() {
 	if h.CurrentUser == nil {
-		fmt.Println("\nAvailable commands: register, login, help, exit")
+		fmt.Printf("\n%sAvailable commands:%s register, login, help, exit\n", colorCyan, colorReset)
 	} else {
 		if h.CurrentUser.TwoFAEnabled {
-			fmt.Println("\nAvailable commands: whoami, disable-2fa, logout, help")
+			fmt.Printf("\n%sAvailable commands:%s whoami, disable-2fa, logout, help\n", colorCyan, colorReset)
 		} else {
-			fmt.Println("\nAvailable commands: whoami, enable-2fa, logout, help")
+			fmt.Printf("\n%sAvailable commands:%s whoami, enable-2fa, logout, help\n", colorCyan, colorReset)
 		}
 	}
 }
 
 func (h *CLIHandler) displayWhoAmI(ctx context.Context) {
 	sess, _ := h.UserRepo.GetSession(ctx, h.CurrentToken)
-	fmt.Println("\n--- User Context Workspace ---")
-	fmt.Printf("Username: %s\n", h.CurrentUser.Username)
-	fmt.Printf("Created On: %s\n", h.CurrentUser.CreatedAt.Format("2006-01-02 15:04:05"))
-	fmt.Printf("2FA Enabled: %t\n", h.CurrentUser.TwoFAEnabled)
-	fmt.Printf("Session Expiration Timestamp: %s\n", sess.ExpiresAt.Format("15:04:05"))
+	fmt.Printf("\n%s┌──────────────────────────────────────────────────┐%s\n", colorCyan, colorReset)
+	fmt.Printf("%s│             USER CONTEXT WORKSPACE               │%s\n", colorCyan, colorReset)
+	fmt.Printf("%s├──────────────────────────────────────────────────┤%s\n", colorCyan, colorReset)
+	fmt.Printf("│  Username: %-38s │\n", h.CurrentUser.Username)
+	fmt.Printf("│  Created On: %-36s │\n", h.CurrentUser.CreatedAt.Format("2006-01-02 15:04:05"))
+	fmt.Printf("│  2FA Enabled: %-35t │\n", h.CurrentUser.TwoFAEnabled)
+	fmt.Printf("│  Session Expiry: %-32s │\n", sess.ExpiresAt.Format("15:04:05"))
 	
+	lastLoginStr := "Never"
 	if h.CurrentUser.LastLogin.Valid {
-		fmt.Printf("Last Success System Entry: %s\n", h.CurrentUser.LastLogin.Time.Format("2006-01-02 15:04:05"))
-	} else {
-		fmt.Println("Last Success System Entry: Never")
+		lastLoginStr = h.CurrentUser.LastLogin.Time.Format("2006-01-02 15:04:05")
 	}
-	fmt.Println("------------------------------")
+	fmt.Printf("│  Last Login: %-36s │\n", lastLoginStr)
+	fmt.Printf("%s└──────────────────────────────────────────────────┘%s\n", colorCyan, colorReset)
 }
