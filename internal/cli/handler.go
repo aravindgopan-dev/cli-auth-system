@@ -11,7 +11,6 @@ import (
 	prompt "github.com/c-bata/go-prompt"
 )
 
-// Consumer-driven interface: The UI layer defines what authentication actions it needs
 type Authenticator interface {
 	Register(ctx context.Context, username, password string) error
 	PreLoginValidate(ctx context.Context, username string) (*repository.User, error)
@@ -23,7 +22,6 @@ type Authenticator interface {
 	Disable2FA(ctx context.Context, user *repository.User) error
 }
 
-// Consumer-driven interface: The UI also accesses the tracker session store directly for guards
 type SessionStore interface {
 	GetSession(ctx context.Context, token string) (*repository.Session, error)
 	DeleteSession(ctx context.Context, token string) error

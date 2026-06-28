@@ -1,21 +1,30 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:17
     container_name: cli-auth-postgres
     restart: unless-stopped
-
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: auth_db
-
     ports:
       - "5432:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cli-auth-app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/auth_db?sslmode=disable
+      - SESSION_DURATION=5m
+      - LOCKOUT_DURATION=1m
+    stdin_open: true
+    tty: true
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

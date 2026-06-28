@@ -110,7 +110,6 @@ func (h *CLIHandler) Help(ctx context.Context, args []string) error {
 	return nil
 }
 
-// Internal Local Shared Utilities
 func (h *CLIHandler) promptCredentials() (string, string) {
 	u := prompt.Input("Username: ", func(d prompt.Document) []prompt.Suggest { return nil })
 	p := prompt.Input("Password: ", func(d prompt.Document) []prompt.Suggest { return nil })
@@ -132,7 +131,6 @@ func (h *CLIHandler) printHelpMenu() {
 }
 
 func (h *CLIHandler) displayWhoAmI(ctx context.Context) {
-	// CLI Handler can read session mappings straight because Repo satisfies SessionStore
 	sess, _ := h.UserRepo.GetSession(ctx, h.CurrentToken)
 	fmt.Println("\n--- User Context Workspace ---")
 	fmt.Printf("Username: %s\n", h.CurrentUser.Username)

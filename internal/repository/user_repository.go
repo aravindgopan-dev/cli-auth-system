@@ -15,9 +15,9 @@ type User struct {
 	TwoFASecret    string
 	TwoFAEnabled   bool
 	FailedAttempts int
-	LockedUntil    sql.NullTime // Maps natively to database null states
+	LockedUntil    sql.NullTime
 	CreatedAt      time.Time
-	LastLogin      sql.NullTime // Maps natively to database null states
+	LastLogin      sql.NullTime
 }
 
 type Session struct {
@@ -26,7 +26,6 @@ type Session struct {
 	ExpiresAt time.Time
 }
 
-// Concrete repository struct. No interface declared here!
 type Repo struct {
 	Conn *pgx.Conn
 }

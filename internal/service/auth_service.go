@@ -16,7 +16,6 @@ import (
 
 const MaxFailedAttempts = 3
 
-// Consumer-driven interface: Service defines the contract it demands from a database
 type DataStore interface {
 	CreateUser(ctx context.Context, username, passwordHash string) error
 	GetUser(ctx context.Context, username string) (*repository.User, error)
@@ -26,7 +25,6 @@ type DataStore interface {
 	DeleteSession(ctx context.Context, token string) error
 }
 
-// Concrete implementation struct
 type AuthService struct {
 	Repo            DataStore
 	SessionDuration time.Duration
